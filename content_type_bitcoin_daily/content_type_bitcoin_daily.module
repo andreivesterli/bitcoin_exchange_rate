@@ -1,0 +1,8 @@
+<?php
+
+/**
+ * @file
+ * Code for the Content Type: Bitcoin Daily feature.
+ */
+
+include_once 'content_type_bitcoin_daily.features.inc';

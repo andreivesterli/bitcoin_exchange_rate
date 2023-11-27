@@ -1,0 +1,14 @@
+name = Content Type: Bitcoin Daily
+description = Exports the Content Type: Bitcoin Daily
+core = 7.x
+package = Features
+version = 7.x-1.0
+dependencies[] = features
+dependencies[] = text
+features[features_api][] = api:2
+features[field_base][] = body
+features[field_base][] = field_todays_bitcoin_rate_in_usd
+features[field_instance][] = node-bitcoin_daily-body
+features[field_instance][] = node-bitcoin_daily-field_todays_bitcoin_rate_in_usd
+features[node][] = bitcoin_daily
+project path = sites/all/modules
