@@ -1,0 +1,76 @@
+<?php
+
+/**
+ * Implements hook_help().
+ */
+function bitcoin_exchange_rate_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#bitcoin_exchange_rate':
+      return '<p>' . t('A module that fetches the current Bitcoin exchange rate in USD.') . '</p>';
+  }
+}
+
+/**
+ * An callback function used to fetch the current Bitcoin exchange rate in USD.
+ */
+function __bitcoin_exchange_rate_fetch_bitcoin_usd() {
+  // Define the API endpoint URL.
+  $coindesk_url = 'https://api.coindesk.com/v1/bpi/currentprice.json';
+  // Define the request parameters.
+  $options = [
+    'method' => 'GET',
+    'timeout' => 15,
+    'headers' => [
+      'Content-Type' => 'application/json',
+    ],
+  ];
+
+  // Make the API request.
+  $response = drupal_http_request($coindesk_url, $options);
+
+  // Check if the request was successful (status code 2xx).
+  if ($response->code >= 200 && $response->code < 300) {
+    // Fetch the Bitcoind exchange rate data.
+    $data = json_decode($response->data);
+    // Parse the response data in order to get the exchange rate.
+    if ($data->bpi) {
+      return $data->bpi->USD->rate;
+    }
+    else {
+      // Could not fetch the "bpi" object data from the response.
+      watchdog(
+        'bitcoin_exchange_rate',
+        'Could not fetch the Bitcoind data. Could not fetch the "bpi" object data.',
+        [],
+        WATCHDOG_ERROR
+      );
+    }
+  }
+  else {
+    // API request failed, handle the error.
+    watchdog(
+      'bitcoin_exchange_rate',
+      'Could not fetch the Bitcoind data: The status code %code and message: %message', ['%code' => $response->code, '%message' => $response->error],
+      WATCHDOG_ERROR
+    );
+  }
+}
+
+/**
+ * Implements hook_node_presave().
+ */
+function bitcoin_exchange_rate_node_presave($node) {
+  // Get the node type.
+  $node_type = $node->type;
+
+  // Check if the node is being created (not updated), the type is
+  // "bitcoin_daily", and there is a valid fetched rate.
+  if (
+    $node->is_new &&
+    $node_type == 'bitcoin_daily' &&
+    isset($node->field_todays_bitcoin_rate_in_usd) && $rate = __bitcoin_exchange_rate_fetch_bitcoin_usd()
+  ) {
+    // Set the new Bitcoin exchange rate into the field.
+    $node->field_todays_bitcoin_rate_in_usd[LANGUAGE_NONE][0]['value'] = $rate;
+  }
+}

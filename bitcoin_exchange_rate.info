@@ -1,0 +1,6 @@
+; bitcoin_exchange_rate.info
+name = "Bitcoin Exchange Rate Info"
+description = "A module that fetches the current Bitcoin exchange rate in USD."
+core = 7.x
+version = 7.x-1.0
+package = Custom
