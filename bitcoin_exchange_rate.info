@@ -4,3 +4,7 @@ description = "A module that fetches the current Bitcoin exchange rate in USD."
 core = 7.x
 version = 7.x-1.0
 package = Custom
+
+; Add the depencencies for features and the CT Bitcoin Daily feature.
+dependencies[] = features
+dependencies[] = content_type_bitcoin_daily
